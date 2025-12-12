@@ -93,6 +93,8 @@ find_package(OpenSSL REQUIRED)
 # Main library target
 add_library(thumper_core
     src/hermes/hermes.cpp
+    src/hermes/der_encode.cpp
+    src/hermes/der_decode.cpp
 )
 
 target_include_directories(thumper_core PUBLIC
@@ -107,6 +109,8 @@ add_executable(thumper_tests
     tests/test_main.cpp
     tests/test_trivial.cpp
     tests/test_hermes_core.cpp
+    tests/test_der_encode.cpp
+    tests/test_der_decode.cpp
 )
 
 target_link_libraries(thumper_tests
