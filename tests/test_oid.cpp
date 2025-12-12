@@ -1,6 +1,6 @@
-#include <gtest/gtest.h>
-
 #include <vector>
+
+#include <gtest/gtest.h>
 
 #include "thumper/hermes/der_decode.hpp"
 #include "thumper/hermes/der_encode.hpp"

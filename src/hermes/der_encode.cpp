@@ -199,8 +199,7 @@ OctetArray put_oid_value(const thumper::hermes::oid::ObjectIdentifier& value) {
     // First two components are combined: first_octet = (component[0] * 40) + component[1]
     // This is a DER encoding rule for OIDs
     if (components.size() >= 2) {
-      const auto first_octet =
-          static_cast<Octet>((components[0] * 40) + components[1]);
+      const auto first_octet = static_cast<Octet>((components[0] * 40) + components[1]);
       result.push_back(first_octet);
     }
 
@@ -230,8 +229,7 @@ OctetArray put_oid_value(const thumper::hermes::oid::ObjectIdentifier& value) {
       }
 
       // Append to result
-      result.insert(result.end(), component_bytes.begin(),
-                    component_bytes.end());
+      result.insert(result.end(), component_bytes.begin(), component_bytes.end());
     }
 
     return result;

@@ -76,6 +76,18 @@
         "ENABLE_SANITIZERS": "OFF",
         "ENABLE_CLANG_TIDY": "OFF"
       }
+    },
+    {
+      "name": "clang-tsan",
+      "displayName": "Clang ThreadSanitizer",
+      "description": "Debug build with ThreadSanitizer for race condition detection",
+      "inherits": "clang-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ENABLE_SANITIZERS": "OFF",
+        "ENABLE_THREAD_SANITIZER": "ON",
+        "ENABLE_CLANG_TIDY": "OFF"
+      }
     }
   ],
   "buildPresets": [
@@ -97,6 +109,11 @@
     {
       "name": "gcc-release",
       "configurePreset": "gcc-release",
+      "jobs": 0
+    },
+    {
+      "name": "clang-tsan",
+      "configurePreset": "clang-tsan",
       "jobs": 0
     }
   ],
@@ -125,6 +142,13 @@
     {
       "name": "gcc-release",
       "configurePreset": "gcc-release",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "clang-tsan",
+      "configurePreset": "clang-tsan",
       "output": {
         "outputOnFailure": true
       }
