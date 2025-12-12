@@ -109,6 +109,10 @@ add_library(thumper_core
     src/crypto/cryptographic_services.cpp
     src/messages/messages.cpp
     src/serial_generator/serial_generator.cpp
+    src/switches.cpp
+    src/client/timestamp_messages_client.cpp
+    src/client/timestamp_maker.cpp
+    src/client/spark_boundary.cpp
 )
 
 target_include_directories(thumper_core PUBLIC
@@ -120,6 +124,16 @@ target_include_directories(thumper_core PUBLIC
 target_link_libraries(thumper_core
     PUBLIC
         OpenSSL::Crypto
+)
+
+# Client executable
+add_executable(thumper_client_cli
+    src/thumper_client_cli.cpp
+)
+
+target_link_libraries(thumper_client_cli
+    PRIVATE
+        thumper_core
 )
 
 # Testing
@@ -135,6 +149,7 @@ add_executable(thumper_tests
     tests/test_crypto.cpp
     tests/test_messages.cpp
     tests/test_serial_generator.cpp
+    tests/test_client_integration.cpp
 )
 
 target_link_libraries(thumper_tests
