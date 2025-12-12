@@ -95,6 +95,7 @@ add_library(thumper_core
     src/hermes/hermes.cpp
     src/hermes/der_encode.cpp
     src/hermes/der_decode.cpp
+    src/hermes/oid.cpp
     src/crypto/cryptographic_services.cpp
 )
 
@@ -118,6 +119,7 @@ add_executable(thumper_tests
     tests/test_hermes_core.cpp
     tests/test_der_encode.cpp
     tests/test_der_decode.cpp
+    tests/test_oid.cpp
     tests/test_crypto.cpp
 )
 

@@ -5,6 +5,7 @@
 #include <span>
 
 #include "thumper/hermes/der.hpp"
+#include "thumper/hermes/oid.hpp"
 #include "thumper/types.hpp"
 
 namespace thumper::hermes::der {
@@ -103,9 +104,35 @@ void get_boolean_value(std::span<const Octet> message, std::size_t start, std::s
 void get_integer_value(std::span<const Octet> message, std::size_t start, std::size_t& stop,
                        int& value, Status& status);
 
-// Note: get_oid_value is intentionally NOT included here.
-// Per the task specification, OID decoding will be co-migrated with the OID type
-// in Task 4 to ensure API boundary correctness.
+// Decodes a DER-encoded Object Identifier (OID) from a message.
+//
+// DER OID encoding:
+// - Identifier: 0x06 (Universal, Primitive, ObjectIdentifier)
+// - Length: Number of octets in the encoded OID value
+// - Value: Encoded OID components using base-128 encoding
+//
+// The first octet combines the first two components: first_octet = (component[0] * 40) +
+// component[1] Subsequent components use base-128 encoding with MSB continuation bits.
+//
+// On success:
+// - stop is set to the index of the last octet of the encoded OID
+// - value contains the decoded ObjectIdentifier
+//
+// On failure:
+// - Status::BadValue: Invalid identifier, length, or value encoding
+// - value is set to an invalid/empty ObjectIdentifier
+// - stop is set to start
+//
+// This function corresponds to Get_OID_Value in hermes-der-decode.adb (which was
+// marked as "TODO: Implement me!" in the Ada source).
+//
+// @param message The message buffer to decode from
+// @param start The starting index of the OID encoding
+// @param stop Output: The index of the last octet of the encoded OID
+// @param value Output: The decoded ObjectIdentifier
+// @param status Output: Success or BadValue
+void get_oid_value(std::span<const Octet> message, std::size_t start, std::size_t& stop,
+                   thumper::hermes::oid::ObjectIdentifier& value, Status& status);
 
 } // namespace thumper::hermes::der
 
