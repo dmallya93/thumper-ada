@@ -4,6 +4,7 @@
 #include <span>
 
 #include "thumper/hermes/der.hpp"
+#include "thumper/hermes/oid.hpp"
 #include "thumper/types.hpp"
 
 namespace thumper::hermes::der {
@@ -85,9 +86,21 @@ OctetArray put_octet_string_value(std::span<const Octet> value);
 // @return An OctetArray containing the TLV-encoded NULL (2 octets)
 OctetArray put_null_value();
 
-// Note: put_oid_value is intentionally NOT included here.
-// Per the task specification, OID encoding will be co-migrated with the OID type
-// in Task 4 to ensure API boundary correctness.
+// Encodes an Object Identifier (OID) in DER TLV format.
+//
+// DER OID encoding:
+// - Tag: 0x06 (Universal, Primitive, ObjectIdentifier)
+// - Length: Number of octets in the encoded OID value
+// - Value: Encoded OID components using base-128 encoding
+//
+// The first two components are combined: first_octet = (component[0] * 40) + component[1]
+// Subsequent components are encoded in base-128 with MSB continuation bits.
+//
+// This function corresponds to Put_OID_Value in hermes-der-encode.adb.
+//
+// @param value The object identifier to encode
+// @return An OctetArray containing the TLV-encoded OID
+OctetArray put_oid_value(const thumper::hermes::oid::ObjectIdentifier& value);
 
 } // namespace thumper::hermes::der
 

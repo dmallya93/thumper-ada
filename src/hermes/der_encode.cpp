@@ -1,5 +1,6 @@
 #include "thumper/hermes/der_encode.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 
@@ -180,6 +181,78 @@ OctetArray put_null_value() {
 
   // Length: Always 0 for NULL
   result.push_back(0x00);
+
+  return result;
+}
+
+OctetArray put_oid_value(const thumper::hermes::oid::ObjectIdentifier& value) {
+  // Helper function to encode OID components into octets
+  // This corresponds to To_Octet_Array in hermes-der-encode.adb
+  auto encode_components = [](const thumper::hermes::oid::ObjectIdentifier& oid) -> OctetArray {
+    OctetArray result;
+    const auto components = oid.components();
+
+    if (components.empty()) {
+      return result;
+    }
+
+    // First two components are combined: first_octet = (component[0] * 40) + component[1]
+    // This is a DER encoding rule for OIDs
+    if (components.size() >= 2) {
+      const auto first_octet =
+          static_cast<Octet>((components[0] * 40) + components[1]);
+      result.push_back(first_octet);
+    }
+
+    // Encode remaining components using base-128 encoding
+    // Each component is split into 7-bit chunks, with MSB=1 for continuation
+    for (std::size_t i = 2; i < components.size(); ++i) {
+      auto component = static_cast<std::uint32_t>(components[i]);
+
+      // Break the component into 7-bit units
+      // We need to encode in big-endian order, so we collect the bytes first
+      std::vector<Octet> component_bytes;
+
+      // Extract 7-bit chunks (initially in little-endian order)
+      // NOLINTNEXTLINE(cppcoreguidelines-avoid-do-while)
+      do {
+        component_bytes.push_back(static_cast<Octet>(component & 0x7F));
+        component >>= 7;
+      } while (component != 0);
+
+      // Reverse to get big-endian order
+      // NOLINTNEXTLINE(modernize-use-ranges)
+      std::reverse(component_bytes.begin(), component_bytes.end());
+
+      // Set MSB to 1 for all bytes except the last
+      for (std::size_t j = 0; j < component_bytes.size() - 1; ++j) {
+        component_bytes[j] |= 0x80;
+      }
+
+      // Append to result
+      result.insert(result.end(), component_bytes.begin(),
+                    component_bytes.end());
+    }
+
+    return result;
+  };
+
+  // Encode the OID value
+  OctetArray encoded_value = encode_components(value);
+
+  // Build the TLV structure
+  OctetArray result;
+
+  // Tag: Universal, Primitive, ObjectIdentifier
+  result.push_back(make_leading_identifier(TagClass::Universal, StructuredFlag::Primitive,
+                                           LeadingNumberType::TagObjectIdentifier));
+
+  // Length
+  OctetArray length_encoding = put_length_value(encoded_value.size());
+  result.insert(result.end(), length_encoding.begin(), length_encoding.end());
+
+  // Value
+  result.insert(result.end(), encoded_value.begin(), encoded_value.end());
 
   return result;
 }

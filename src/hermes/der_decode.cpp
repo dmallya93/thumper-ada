@@ -342,6 +342,132 @@ void get_integer_value(std::span<const Octet> message, std::size_t start, std::s
   status = Status::Success;
 }
 
+void get_oid_value(std::span<const Octet> message, std::size_t start, std::size_t& stop,
+                   thumper::hermes::oid::ObjectIdentifier& value, Status& status) {
+  // Default error values
+  value = thumper::hermes::oid::ObjectIdentifier();
+  stop = start;
+  status = Status::BadValue;
+
+  // Check that we have at least one byte for the identifier
+  if (start >= message.size()) {
+    return;
+  }
+
+  // Parse and validate the identifier
+  TagClass tag_class = TagClass::Universal;
+  StructuredFlag structured_flag = StructuredFlag::Primitive;
+  LeadingNumberType tag = LeadingNumberType::TagNull;
+  Status identifier_status = Status::Success;
+
+  split_leading_identifier(message[start], tag_class, structured_flag, tag, identifier_status);
+
+  // Validate that this is a proper OID identifier
+  if (identifier_status != Status::Success || tag_class != TagClass::Universal ||
+      structured_flag != StructuredFlag::Primitive ||
+      tag != LeadingNumberType::TagObjectIdentifier) {
+    return;
+  }
+
+  // Check that we have room for at least the length octet
+  if (start >= message.size() - 1) {
+    return;
+  }
+
+  // Parse the length
+  std::size_t length_stop = 0;
+  std::size_t length = 0;
+  Status length_status = Status::Success;
+
+  get_length_value(message, start + 1, length_stop, length, length_status);
+
+  if (length_status != Status::Success) {
+    stop = length_stop;
+    return;
+  }
+
+  if (length_stop >= message.size() - length) {
+    stop = message.size() - 1;
+    return;
+  }
+
+  // Decode the OID value
+  stop = length_stop + length;
+
+  // Need at least 1 octet for a valid OID (first two components combined)
+  if (length == 0) {
+    return;
+  }
+
+  // Decode the OID components
+  std::vector<thumper::hermes::oid::ComponentType> components;
+
+  // First octet contains the first two components: first_octet = (component[0] * 40) +
+  // component[1] Need to split this back out
+  const Octet first_octet = message[length_stop + 1];
+
+  // Determine the first and second components
+  // Valid combinations:
+  // - 0.X where X in 0-39 -> first_octet = 0*40 + X = X (0-39)
+  // - 1.X where X in 0-39 -> first_octet = 1*40 + X = 40+X (40-79)
+  // - 2.X where X in 0-175 -> first_octet = 2*40 + X = 80+X (80-255)
+  thumper::hermes::oid::ComponentType first_component = 0;
+  thumper::hermes::oid::ComponentType second_component = 0;
+
+  if (first_octet < 40) {
+    first_component = 0;
+    second_component = first_octet;
+  } else if (first_octet < 80) {
+    first_component = 1;
+    second_component = first_octet - 40;
+  } else {
+    first_component = 2;
+    second_component = first_octet - 80;
+  }
+
+  components.push_back(first_component);
+  components.push_back(second_component);
+
+  // Decode remaining components using base-128 encoding
+  std::size_t pos = length_stop + 2;
+  while (pos <= stop) {
+    thumper::hermes::oid::ComponentType component = 0;
+
+    // Decode a component using base-128 encoding
+    // Each octet has MSB=1 for continuation, bits 6-0 are data
+    bool more = true;
+    while (more && pos <= stop) {
+      const Octet byte = message[pos];
+      ++pos;
+
+      // Check for overflow (component too large for int32_t)
+      if (component > (std::numeric_limits<thumper::hermes::oid::ComponentType>::max() >> 7)) {
+        // Overflow would occur
+        return;
+      }
+
+      component = (component << 7) | (byte & 0x7F);
+      more = (byte & 0x80) != 0;
+    }
+
+    // If we exited the loop with more=true, the encoding is incomplete
+    if (more) {
+      return;
+    }
+
+    components.push_back(component);
+  }
+
+  // Validate and create the OID
+  auto oid_status = thumper::hermes::oid::ObjectIdentifier::from_components(components, value);
+  if (oid_status != thumper::hermes::oid::Status::Success) {
+    value = thumper::hermes::oid::ObjectIdentifier();
+    return;
+  }
+
+  status = Status::Success;
+}
+
 // NOLINTEND(readability-identifier-naming,cppcoreguidelines-pro-bounds-constant-array-index)
 
 } // namespace thumper::hermes::der
