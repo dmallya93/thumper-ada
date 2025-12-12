@@ -90,9 +90,12 @@ find_package(GTest REQUIRED)
 # OpenSSL for cryptographic operations (RSA signatures, hashing)
 find_package(OpenSSL REQUIRED)
 
-# Main library target (will be populated in future tasks)
-add_library(thumper_core INTERFACE)
-target_include_directories(thumper_core INTERFACE
+# Main library target
+add_library(thumper_core
+    src/hermes/hermes.cpp
+)
+
+target_include_directories(thumper_core PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
@@ -103,6 +106,7 @@ enable_testing()
 add_executable(thumper_tests
     tests/test_main.cpp
     tests/test_trivial.cpp
+    tests/test_hermes_core.cpp
 )
 
 target_link_libraries(thumper_tests
