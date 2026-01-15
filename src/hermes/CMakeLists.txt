@@ -34,6 +34,7 @@ add_library(hermes STATIC
     src/hermes.cpp
     src/oid.cpp
     src/der_encode.cpp
+    src/der_decode.cpp
 )
 
 # Public include directory
@@ -119,4 +120,18 @@ target_link_libraries(check_der_encode_test
 
 # Register test with CTest
 add_test(NAME DEREncodeTests COMMAND check_der_encode_test)
+
+# DER Decode tests
+add_executable(check_der_decode_test
+    tests/check_der_decode_test.cpp
+)
+
+target_link_libraries(check_der_decode_test
+    PRIVATE
+        hermes
+        GTest::gtest
+)
+
+# Register test with CTest
+add_test(NAME DERDecodeTests COMMAND check_der_decode_test)
 
