@@ -680,12 +680,3 @@ TEST_F(DERDecodeTest, RoundTrip_OID_Simple) {
         EXPECT_EQ(decodedComponents[i], components[i]) << "Component " << i << " mismatch";
     }
 }
-
-///////////////////////////////////////////////////////////////////////////
-// Main test runner
-///////////////////////////////////////////////////////////////////////////
-
-int main(int argc, char** argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}

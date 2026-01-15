@@ -92,46 +92,38 @@ enable_testing()
 # Find Google Test
 find_package(GTest REQUIRED)
 
-# OID tests
-add_executable(check_oid_test
+# Unified Hermes test executable
+# This aggregates all test modules (OID, DER encode, DER decode, trivial)
+# into a single test executable, mirroring the Ada AUnit hermes_suite structure.
+add_executable(hermes_test
+    tests/hermes_test.cpp
     tests/check_oid_test.cpp
-)
-
-target_link_libraries(check_oid_test
-    PRIVATE
-        hermes
-        GTest::gtest
-        GTest::gtest_main
-)
-
-# Register test with CTest
-add_test(NAME OIDTests COMMAND check_oid_test)
-
-# DER Encode tests
-add_executable(check_der_encode_test
     tests/check_der_encode_test.cpp
-)
-
-target_link_libraries(check_der_encode_test
-    PRIVATE
-        hermes
-        GTest::gtest
-)
-
-# Register test with CTest
-add_test(NAME DEREncodeTests COMMAND check_der_encode_test)
-
-# DER Decode tests
-add_executable(check_der_decode_test
     tests/check_der_decode_test.cpp
+    tests/check_trivial_test.cpp
 )
 
-target_link_libraries(check_der_decode_test
+target_link_libraries(hermes_test
     PRIVATE
         hermes
         GTest::gtest
 )
 
-# Register test with CTest
-add_test(NAME DERDecodeTests COMMAND check_der_decode_test)
+# Register unified test with CTest
+add_test(NAME HermesTests COMMAND hermes_test)
+
+# Optional: Keep individual test executables for targeted testing
+# Uncomment these if you want both unified and individual test executables
+
+# add_executable(check_oid_test tests/check_oid_test.cpp)
+# target_link_libraries(check_oid_test PRIVATE hermes GTest::gtest GTest::gtest_main)
+# add_test(NAME OIDTests COMMAND check_oid_test)
+
+# add_executable(check_der_encode_test tests/check_der_encode_test.cpp)
+# target_link_libraries(check_der_encode_test PRIVATE hermes GTest::gtest GTest::gtest_main)
+# add_test(NAME DEREncodeTests COMMAND check_der_encode_test)
+
+# add_executable(check_der_decode_test tests/check_der_decode_test.cpp)
+# target_link_libraries(check_der_decode_test PRIVATE hermes GTest::gtest GTest::gtest_main)
+# add_test(NAME DERDecodeTests COMMAND check_der_decode_test)
 
