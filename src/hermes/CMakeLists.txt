@@ -32,6 +32,7 @@ endif()
 # Hermes static library
 add_library(hermes STATIC
     src/hermes.cpp
+    src/oid.cpp
 )
 
 # Public include directory
@@ -81,4 +82,26 @@ install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/HermesConfigVersion.cmake
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Hermes
 )
+
+# Testing
+include(CTest)
+enable_testing()
+
+# Find Google Test
+find_package(GTest REQUIRED)
+
+# OID tests
+add_executable(check_oid_test
+    tests/check_oid_test.cpp
+)
+
+target_link_libraries(check_oid_test
+    PRIVATE
+        hermes
+        GTest::gtest
+        GTest::gtest_main
+)
+
+# Register test with CTest
+add_test(NAME OIDTests COMMAND check_oid_test)
 
