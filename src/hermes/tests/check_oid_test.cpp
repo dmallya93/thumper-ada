@@ -467,9 +467,3 @@ TEST_F(OIDTest, WellKnownOID_RSA_Encryption) {
     EXPECT_EQ(oid.getSecondLevelComponent(), 2);
     EXPECT_EQ(oid.componentCount(), 7);
 }
-
-// Main function
-int main(int argc, char** argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}

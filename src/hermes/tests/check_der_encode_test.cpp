@@ -271,12 +271,3 @@ TEST(DEREncodeTest, PutOID_SHA256) {
     EXPECT_TRUE(compareOctetArrays(result, expected))
         << "SHA-256 OID encoding failed";
 }
-
-///////////////////////////////////////////////////////////////////////////
-// Main function for running all tests
-///////////////////////////////////////////////////////////////////////////
-
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
