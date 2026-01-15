@@ -1,0 +1,53 @@
+# Build directories
+build/
+cmake-build-*/
+out/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+!*Config.cmake.in
+
+# Compiled object files
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+
+# Executables
+*.exe
+*.out
+*.app
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Test and coverage results
+*.gcda
+*.gcno
+*.gcov
+coverage/
+.coverage
+
+# Dependency directories
+third_party/
+external/
+deps/
+
+# Generated documentation
+docs/html/
+docs/latex/
+
