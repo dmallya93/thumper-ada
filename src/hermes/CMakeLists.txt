@@ -33,6 +33,7 @@ endif()
 add_library(hermes STATIC
     src/hermes.cpp
     src/oid.cpp
+    src/der_encode.cpp
 )
 
 # Public include directory
@@ -104,4 +105,18 @@ target_link_libraries(check_oid_test
 
 # Register test with CTest
 add_test(NAME OIDTests COMMAND check_oid_test)
+
+# DER Encode tests
+add_executable(check_der_encode_test
+    tests/check_der_encode_test.cpp
+)
+
+target_link_libraries(check_der_encode_test
+    PRIVATE
+        hermes
+        GTest::gtest
+)
+
+# Register test with CTest
+add_test(NAME DEREncodeTests COMMAND check_der_encode_test)
 
